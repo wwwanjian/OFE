@@ -1,5 +1,6 @@
 # 数据集处理
 import numpy as np
+import pandas as pd
 
 np.random.seed(7)
 
@@ -64,3 +65,37 @@ def splitDataToCouples(data):
            train3, train3Y, test3, test3Y, \
            train4, train4Y, test4, test4Y, \
            train5, train5Y, test5, test5Y,
+
+
+def splitData2xy(data):
+    '''
+    划分数据集为X和y
+    :param data: 原始数据集
+    :return: X:特征集 y:标签
+    '''
+    x = data.drop(data.columns[len(data.columns) - 1], 1)
+    Y = data[data.columns[len(data.columns) - 1]]
+    X = x.values
+    y = Y.values
+    return X, y
+
+
+def mergeXy2set(X, y):
+    '''
+    合并X和Y为一个数据集
+    :param X: 特征
+    :param y: 标签
+    :return: 数据集
+    '''
+    df = np.column_stack((X, y))
+    return df
+
+
+if __name__ == '__main__':
+    df = pd.read_csv("datasets/sonar/sonar.csv", header=None)
+    print(df.head(10))
+    X, y = splitData2xy(df)
+    X_new = np.cos(X)
+    df = mergeXy2set(X_new, y)
+    print(df)
+    print(df.shape)

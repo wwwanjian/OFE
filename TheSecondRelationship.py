@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn.linear_model import Ridge
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.preprocessing import StandardScaler
+from Data import splitData2xy, mergeXy2set
 from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
@@ -58,8 +59,8 @@ def dependent(x, th1, fold, dataset_path):
     :param fold: 第几折
     :return:  ans:线性相关特征对  ans1:非线性
     '''
-    ans = []
-    ans1 = []
+    related = []
+    nonrelated = []
     m, n = x.shape
     cnt = 0
     cnt1 = 0
@@ -69,25 +70,21 @@ def dependent(x, th1, fold, dataset_path):
                 a, b = pearsonr(x[:, i][:, np.newaxis], x[:, j][:, np.newaxis])
                 if (calDiscorr(np.array(x[:, i]), np.array(x[:, j])) >= th1):
                     a1 = i, j
-                    ans.append(a1)
+                    related.append(a1)
                     cnt = cnt + 1
                 elif (calDiscorr(np.array(x[:, i]), np.array(x[:, j])) > 0 and calDiscorr(np.array(x[:, i]),
                                                                                           np.array(x[:, j])) < 0.7):
                     zz = i, j
-                    ans1.append(zz)
+                    nonrelated.append(zz)
                     cnt1 = cnt1 + 1
     if os.path.exists(f'{dataset_path}linear_correlated_{fold}.csv'):  # Name of Ouput file generated
         os.remove(f'{dataset_path}linear_correlated_{fold}.csv')
     if os.path.exists(f'{dataset_path}nonlinear_correlated_{fold}.csv'):  # Name of Ouput file generated
         os.remove(f'{dataset_path}nonlinear_correlated_{fold}.csv')
 
-    np.savetxt(f"{dataset_path}linear_correlated_{fold}.csv", ans, delimiter=",", fmt="%s")
-    np.savetxt(f"{dataset_path}nonlinear_correlated_{fold}.csv", ans1, delimiter=",", fmt="%s")
-
-    print("Number of linear correlated features are:")
-    print(cnt)
-    print("Number of non linear correlated features are:")
-    print(cnt1)
+    np.savetxt(f"{dataset_path}linear_correlated_{fold}.csv", related, delimiter=",", fmt="%s")
+    np.savetxt(f"{dataset_path}nonlinear_correlated_{fold}.csv", nonrelated, delimiter=",", fmt="%s")
+    return related, nonrelated
 
 
 # 线性特征生成
@@ -211,71 +208,38 @@ def nonlinear(TR, TST, fold, dataset_path):
     return predicted_train_final, predicted_test_final
 
 
-# PCA 生成特征+origin特征
-def pca_operator(X_train, X_test, fold, save_to):
+def ori_pca(dataset):
     '''
-    通过PCA生成特征在和原始特征拼接起来
-    :param X_train:
-    :param X_test:
-    :param fold:
-    :param save_to:
-    :return:
+    特征经过pca以后再加上原始特征
+    :param dataset: 原始数据集
+    :return: 新数据集
     '''
-    rows, cols = X_train.shape
+    X, y = splitData2xy(dataset)
+    rows, cols = X.shape
     ipca = PCA(n_components=min(60, cols))
-    ipca.fit(X_train)
-    X_train_pca = ipca.transform(X_train)
-    X_test_pca = ipca.transform(X_test)
+    ipca.fit(X)
+    X_new = ipca.transform(X)
 
-    scaler = StandardScaler().fit(X_train_pca)
-    X_train_sca = scaler.transform(X_train)
-    X_test_sca = scaler.transform(X_test)
-
-    X_train_pca = np.hstack([X_train_pca, X_train_sca])
-    X_test_pca = np.hstack([X_test_pca, X_test_sca])
-
-    if os.path.exists(f"{save_to}pca_train_{fold}.csv"):  # Name of Ouput file generated
-        os.remove(f"{save_to}pca_train_{fold}.csv")
-    if os.path.exists(f"{save_to}pca_test_{fold}.csv"):  # Name of Ouput file generated
-        os.remove(f"{save_to}pca_test_{fold}.csv")
-
-    # Saving constructed features finally to a file
-    with open(f"{save_to}pca_train_{fold}.csv", "wb") as myfile:
-        np.savetxt(myfile, X_train_pca, delimiter=",")
-    with open(f"{save_to}pca_test_{fold}.csv", "wb") as myfile:
-        np.savetxt(myfile, X_test_pca, delimiter=",")
-
-    return X_train_pca, X_test_pca
+    scaler = StandardScaler().fit(X_new)
+    X_sca = scaler.transform(X)
+    X_new = np.hstack([X_new, X_sca])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-# 单独PCA特征
-def pca_only(X_train, X_test, fold, save_to):
+def single_pca(dataset):
     '''
-    通过PCA生成特征
-    :param X_train:
-    :param X_test:
-    :param fold:
-    :param save_to:
-    :return:
+    特征通过PCA进行转化
+    :param dataset: 原始数据集
+    :return: 转化后的数据集
     '''
-    rows, cols = X_train.shape
+    X, y = splitData2xy(dataset)
+    rows, cols = X.shape
     ipca = PCA(n_components=min(60, cols))
-    ipca.fit(X_train)
-    X_train_pca = ipca.transform(X_train)
-    X_test_pca = ipca.transform(X_test)
-
-    if os.path.exists(f"{save_to}pca_only_train_{fold}.csv"):  # Name of Ouput file generated
-        os.remove(f"{save_to}pca_only_train_{fold}.csv")
-    if os.path.exists(f"{save_to}pca_only_test_{fold}.csv"):  # Name of Ouput file generated
-        os.remove(f"{save_to}pca_only_test_{fold}.csv")
-
-    # Saving constructed features finally to a file
-    with open(f"{save_to}pca_only_train_{fold}.csv", "wb") as myfile:
-        np.savetxt(myfile, X_train_pca, delimiter=",")
-    with open(f"{save_to}pca_only_test_{fold}.csv", "wb") as myfile:
-        np.savetxt(myfile, X_test_pca, delimiter=",")
-
-    return X_train_pca, X_test_pca
+    ipca.fit(X)
+    X_new = ipca.transform(X)
+    df = mergeXy2set(X_new, y)
+    return df
 
 
 # PCA+ori然后再ig
@@ -346,3 +310,30 @@ def oripca_ori_ig_pca_ori_new(X_train, X_test, Y_train, fold, save_to, p2, p1):
     pca_train1 = np.hstack([p2, X_train_pca])
     pca_test1 = np.hstack([p1, X_test_pca])
     return pca_train1, pca_test1
+
+
+def get_newly_feature(train, test, fold, dataset_path):
+    '''
+    获得线性和非线性生成特征
+    :param train: 训练
+    :param test: 测试
+    :return:
+    '''
+    dependent(train, 0.7, fold, dataset_path)
+    a2, a1 = linear(train, test, fold, dataset_path)
+    a4, a3 = nonlinear(train, test, fold, dataset_path)
+
+    r4 = np.hstack([a2, a4])  # Train
+    r3 = np.hstack([a1, a3])  # Test
+
+    scaler = StandardScaler().fit(r4)  # Normalization  & fit only on training
+    p2 = scaler.transform(r4)  # Normalized Train
+    p1 = scaler.transform(r3)  # Normalized Test
+    return p2, p1
+
+if __name__ == '__main__':
+    df = pd.read_csv("datasets/sonar/sonar.csv", header=None)
+    print(df.head(10))
+    df = ori_pca(df)
+    print(df)
+    print(df.shape)

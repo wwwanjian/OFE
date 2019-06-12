@@ -1,128 +1,148 @@
 # 处理第一类关系
 import numpy as np
 import pandas as pd
+from Data import splitData2xy, mergeXy2set
 
 np.random.seed(7)
 
 
-def single_cos(train, test):
-    train_new = np.cos(train)
-    test_new = np.cos(test)
-    return train_new, test_new
+def single_cos(dataset):
+    '''
+    特征经过cos转换
+    :param dataset: 原始数据集
+    :return: 转换后的数据集
+    '''
+    X, y = splitData2xy(dataset)
+    X_new = np.cos(X)
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def ori_cos(train, test):
-    train_new = np.cos(train)
-    test_new = np.cos(test)
-    train_new = np.hstack([train, train_new])
-    test_new = np.hstack([test, test_new])
-    return train_new, test_new
+def ori_cos(dataset):
+    '''
+    特征经过cos转化后加上原始特征
+    :param dataset:
+    :return:
+    '''
+    X, y = splitData2xy(dataset)
+    X_new = np.cos(X)
+    X_new = np.hstack([X, X_new])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def single_sin(train, test):
-    train_new = np.sin(train)
-    test_new = np.sin(test)
-    return train_new, test_new
+def single_sin(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.sin(X)
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def ori_sin(train, test):
-    train_new = np.sin(train)
-    test_new = np.sin(test)
-    train_new = np.hstack([train, train_new])
-    test_new = np.hstack([test, test_new])
-    return train_new, test_new
+def ori_sin(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.sin(X)
+    X_new = np.hstack([X, X_new])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def single_tan(train, test):
-    train_new = np.tan(train)
-    test_new = np.tan(test)
-    return train_new, test_new
+def single_tan(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.tan(X)
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def ori_tan(train, test):
-    train_new = np.tan(train)
-    test_new = np.tan(test)
-    train_new = np.hstack([train, train_new])
-    test_new = np.hstack([test, test_new])
-    return train_new, test_new
+def ori_tan(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.tan(X)
+    X_new = np.hstack([X, X_new])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def single_arccos(train, test):
-    train_new = np.arccos(train)
-    test_new = np.arccos(test)
-    return train_new, test_new
+def single_arccos(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.arccos(X)
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def ori_arccos(train, test):
-    train_new = np.arccos(train)
-    test_new = np.arccos(test)
-    train_new = np.hstack([train, train_new])
-    test_new = np.hstack([test, test_new])
-    return train_new, test_new
+def ori_arccos(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.arccos(X)
+    X_new = np.hstack([X, X_new])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def single_arcsin(train, test):
-    train_new = np.arcsin(train)
-    test_new = np.arcsin(test)
-    return train_new, test_new
+def single_arcsin(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.arcsin(X)
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def ori_arcsin(train, test):
-    train_new = np.arcsin(train)
-    test_new = np.arcsin(test)
-    train_new = np.hstack([train, train_new])
-    test_new = np.hstack([test, test_new])
-    return train_new, test_new
+def ori_arcsin(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.arcsin(X)
+    X_new = np.hstack([X, X_new])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def single_arctan(train, test):
-    train_new = np.arctan(train)
-    test_new = np.arctan(test)
-    return train_new, test_new
+def single_arctan(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.arctan(X)
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def ori_arctan(train, test):
-    train_new = np.arctan(train)
-    test_new = np.arctan(test)
-    train_new = np.hstack([train, train_new])
-    test_new = np.hstack([test, test_new])
-    return train_new, test_new
+def ori_arctan(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = np.arctan(X)
+    X_new = np.hstack([X, X_new])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def single_square(train, test):
-    train_new = train ** 2
-    test_new = test ** 2
-    return train_new, test_new
+def single_square(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = X ** 2
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def ori_square(train, test):
-    train_new = train ** 2
-    test_new = test ** 2
-    train_new = np.hstack([train, train_new])
-    test_new = np.hstack([test, test_new])
-    return train_new, test_new
+def ori_square(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = X ** 2
+    X_new = np.hstack([X, X_new])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
 # 归一化
-def single_normalizetion(train, test):
-    train_new = (train - train.mean()) / train.std()
-    test_new = (test - test.mean()) / test.std()
-    return train_new, test_new
+def single_normalizetion(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = (X - X.mean()) / X.std()
+    df = mergeXy2set(X_new, y)
+    return df
 
 
-def ori_normalizetion(train, test):
-    train_new = (train - train.mean()) / train.std()
-    test_new = (test - test.mean()) / test.std()
-    train_new = np.hstack([train, train_new])
-    test_new = np.hstack([test, test_new])
-    return train_new, test_new
+def ori_normalizetion(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = (X - X.mean()) / X.std()
+    X_new = np.hstack([X, X_new])
+    df = mergeXy2set(X_new, y)
+    return df
 
 
 # 离散化
-def single_discretization(train, test):
-    train_new = pd.cut(train, 10, precision=2, labels=False)
-    test_new = pd.cut(test, 10, precision=2, labels=False)
-    return train_new, test_new
+def single_discretization(dataset):
+    X, y = splitData2xy(dataset)
+    X_new = pd.cut(X, 10, precision=2, labels=False)
+    df = mergeXy2set(X_new, y)
+    return df
 
 
 # one-hot
@@ -131,6 +151,8 @@ def single_onehot(npArray):
 
 
 if __name__ == '__main__':
-    data = np.random.rand(20)
-    print(data)
-    print(single_discretization(data))
+    df = pd.read_csv("datasets/sonar/sonar.csv", header=None)
+    print(df.head(10))
+    nes = ori_normalizetion(df)
+    print(nes)
+    print(nes.shape)
