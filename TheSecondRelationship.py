@@ -52,7 +52,7 @@ def calDiscorr(X, Y):
 
 
 # 得到线性和非线性相关特征
-def dependent(x, th1, fold, dataset_path):
+def dependent(x, th1):
     '''
     :param x: 特征集
     :param th1: 阈值
@@ -77,18 +77,18 @@ def dependent(x, th1, fold, dataset_path):
                     zz = i, j
                     nonrelated.append(zz)
                     cnt1 = cnt1 + 1
-    if os.path.exists(f'{dataset_path}linear_correlated_{fold}.csv'):  # Name of Ouput file generated
-        os.remove(f'{dataset_path}linear_correlated_{fold}.csv')
-    if os.path.exists(f'{dataset_path}nonlinear_correlated_{fold}.csv'):  # Name of Ouput file generated
-        os.remove(f'{dataset_path}nonlinear_correlated_{fold}.csv')
-
-    np.savetxt(f"{dataset_path}linear_correlated_{fold}.csv", related, delimiter=",", fmt="%s")
-    np.savetxt(f"{dataset_path}nonlinear_correlated_{fold}.csv", nonrelated, delimiter=",", fmt="%s")
+    # if os.path.exists(f'{dataset_path}linear_correlated_{fold}.csv'):  # Name of Ouput file generated
+    #     os.remove(f'{dataset_path}linear_correlated_{fold}.csv')
+    # if os.path.exists(f'{dataset_path}nonlinear_correlated_{fold}.csv'):  # Name of Ouput file generated
+    #     os.remove(f'{dataset_path}nonlinear_correlated_{fold}.csv')
+    #
+    # np.savetxt(f"{dataset_path}linear_correlated_{fold}.csv", related, delimiter=",", fmt="%s")
+    # np.savetxt(f"{dataset_path}nonlinear_correlated_{fold}.csv", nonrelated, delimiter=",", fmt="%s")
     return related, nonrelated
 
 
 # 线性特征生成
-def linear(TR, TST, fold, dataset_path):
+def linear(X, related):
     '''
     :param TR: 训练数据集
     :param TST: 测试数据集
@@ -99,52 +99,26 @@ def linear(TR, TST, fold, dataset_path):
     # clf = LinearRegression()
     # clf = RandomForestRegressor()
     ans = []
-    a, b = TR.shape
-    c, d = TST.shape
-    dataset = pd.read_csv(f'{dataset_path}linear_correlated_{fold}.csv', header=None)
-    val = dataset.as_matrix(columns=None)
-    aa, bb = val.shape
-
-    # Feature matrix initialized that stores features constructed
-    predicted_train = np.zeros((a, len(ans)), dtype=float)
-    predicted_test = np.zeros((c, len(ans)), dtype=float)
-    predicted_train_error = np.zeros((a, len(ans)), dtype=float)
-    predicted_test_error = np.zeros((c, len(ans)), dtype=float)
+    rows, cols = X.shape
+    aa = len(related)
+    predicted = np.zeros((rows, len(ans)), dtype=float)
+    predicted_error = np.zeros((rows, len(ans)), dtype=float)
 
     for j in range(0, aa):
-        rr, ss = np.array(TR[:, (int)(val[j][0])][:, np.newaxis]), np.array(TR[:, (int)(val[j][1])])
-        tt, uu = np.array(TST[:, (int)(val[j][0])][:, np.newaxis]), np.array(TST[:, (int)(val[j][1])])
+        rr, ss = np.array(X[:, (int)(related[j][0])][:, np.newaxis]), np.array(X[:, (int)(related[j][1])])
         y_train = clf.fit(rr, ss).predict(rr)[:, np.newaxis]
-        y_test = clf.fit(rr, ss).predict(tt)[:, np.newaxis]
-        predicted_train = np.hstack([predicted_train, y_train])
-        predicted_test = np.hstack([predicted_test, y_test])
+        predicted = np.hstack([predicted, y_train])
 
         dd = ss[:, np.newaxis]
-        ee = uu[:, np.newaxis]
         diff_train = (dd - y_train)
-        diff_test = (ee - y_test)
-        predicted_train_error = np.hstack([predicted_train_error, diff_train])
-        predicted_test_error = np.hstack([predicted_test_error, diff_test])
-    predicted_train_final = np.hstack([predicted_train, predicted_train_error])
-    predicted_test_final = np.hstack([predicted_test, predicted_test_error])
-    # Saving constructed features finally to a file
+        predicted_error = np.hstack([predicted_error, diff_train])
+    predicted_final = np.hstack([predicted, predicted_error])
 
-    if os.path.exists(f"{dataset_path}related_lineartest_{fold}.csv"):  # Name of Ouput file generated
-        os.remove(f"{dataset_path}related_lineartest_{fold}.csv")
-
-    if os.path.exists(f'{dataset_path}related_lineartrain_{fold}.csv'):  # Name of Ouput file generated
-        os.remove(f'{dataset_path}related_lineartrain_{fold}.csv')
-
-    with open(f"{dataset_path}related_lineartest_{fold}.csv", "wb") as myfile:
-        np.savetxt(myfile, predicted_test_final, delimiter=",", fmt="%s")
-    with open(f"{dataset_path}related_lineartrain_{fold}.csv", "wb") as myfile:
-        np.savetxt(myfile, predicted_train_final, delimiter=",", fmt="%s")
-
-    return predicted_train_final, predicted_test_final
+    return predicted_final
 
 
 # 非线性特征生成
-def nonlinear(TR, TST, fold, dataset_path):
+def nonlinear(X, nonrelated):
     '''
     :param TR: 训练数据集
     :param TST: 测试数据集
@@ -152,60 +126,25 @@ def nonlinear(TR, TST, fold, dataset_path):
     :return:
     '''
     ans = []
-    a, b = TR.shape
-    c, d = TST.shape
-    dataset = pd.read_csv(f'{dataset_path}nonlinear_correlated_{fold}.csv', header=None)
-    val = dataset.as_matrix(columns=None)
-    aa, bb = val.shape
-
-    # Feature matrix initialized that stores features constructed
-    predicted_train = np.zeros((a, len(ans)), dtype=float)
-    predicted_test = np.zeros((c, len(ans)), dtype=float)
-
-    predicted_train_error = np.zeros((a, len(ans)), dtype=float)
-    predicted_test_error = np.zeros((c, len(ans)), dtype=float)
-
+    rows, cols = X.shape
+    aa = len(nonrelated)
+    predicted = np.zeros((rows, len(ans)), dtype=float)
+    predicted_error = np.zeros((rows, len(ans)), dtype=float)
     svr_rbf = KernelRidge(alpha=1.0, coef0=1, degree=3, gamma=None, kernel='rbf',
                           kernel_params=None)
     # svr_rbf = SVR()
     # svr_rbf = AdaBoostRegressor()
-
     # svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
-
     for j in range(0, aa):
-        rr, ss = np.array(TR[:, (int)(val[j][0])][:, np.newaxis]), np.array(TR[:, (int)(val[j][1])])
-        tt, uu = np.array(TST[:, (int)(val[j][0])][:, np.newaxis]), np.array(TST[:, (int)(val[j][1])])
-
+        rr, ss = np.array(X[:, (int)(nonrelated[j][0])][:, np.newaxis]), np.array(X[:, (int)(nonrelated[j][1])])
         y_train = svr_rbf.fit(rr, ss).predict(rr)[:, np.newaxis]
-        y_test = svr_rbf.fit(rr, ss).predict(tt)[:, np.newaxis]
-        predicted_train = np.hstack([predicted_train, y_train])
-        predicted_test = np.hstack([predicted_test, y_test])
-
+        predicted = np.hstack([predicted, y_train])
         dd = ss[:, np.newaxis]
-        ee = uu[:, np.newaxis]
         diff_train = (dd - y_train)
-        diff_test = (ee - y_test)
+        predicted_error = np.hstack([predicted_error, diff_train])
 
-        predicted_train_error = np.hstack([predicted_train_error, diff_train])
-        predicted_test_error = np.hstack([predicted_test_error, diff_test])
-
-    predicted_train_final = np.hstack([predicted_train, predicted_train_error])
-    predicted_test_final = np.hstack([predicted_test, predicted_test_error])
-
-    if os.path.exists(f"{dataset_path}related_nonlineartest_{fold}.csv"):  # Name of Ouput file generated
-        os.remove(f"{dataset_path}related_nonlineartest_{fold}.csv")
-
-    if os.path.exists(
-            f'{dataset_path}related_nonlineartrain_{fold}.csv'):  # Name of Ouput file generated
-        os.remove(f'{dataset_path}related_nonlineartrain_{fold}.csv')
-
-    # Saving constructed features finally to a file
-    with open(f"{dataset_path}related_nonlineartest_{fold}.csv", "wb") as myfile:
-        np.savetxt(myfile, predicted_test_final, delimiter=",")
-    with open(f"{dataset_path}related_nonlineartrain_{fold}.csv", "wb") as myfile:
-        np.savetxt(myfile, predicted_train_final, delimiter=",")
-
-    return predicted_train_final, predicted_test_final
+    predicted_final = np.hstack([predicted, predicted_error])
+    return predicted_final
 
 
 def ori_pca(dataset):
@@ -312,28 +251,28 @@ def oripca_ori_ig_pca_ori_new(X_train, X_test, Y_train, fold, save_to, p2, p1):
     return pca_train1, pca_test1
 
 
-def get_newly_feature(train, test, fold, dataset_path):
+def get_newly_feature(dataset):
     '''
     获得线性和非线性生成特征
     :param train: 训练
     :param test: 测试
     :return:
     '''
-    dependent(train, 0.7, fold, dataset_path)
-    a2, a1 = linear(train, test, fold, dataset_path)
-    a4, a3 = nonlinear(train, test, fold, dataset_path)
+    X, y = splitData2xy(dataset)
+    related, nonrelated = dependent(X, 0.7)
+    X_linear = linear(X, related)
+    X_nonlinear = nonlinear(X, nonrelated)
 
-    r4 = np.hstack([a2, a4])  # Train
-    r3 = np.hstack([a1, a3])  # Test
+    X_newly = np.hstack([X_linear, X_nonlinear])
 
-    scaler = StandardScaler().fit(r4)  # Normalization  & fit only on training
-    p2 = scaler.transform(r4)  # Normalized Train
-    p1 = scaler.transform(r3)  # Normalized Test
-    return p2, p1
+    scaler = StandardScaler().fit(X_newly)  # Normalization  & fit only on training
+    X_newly_sca = scaler.transform(X_newly)
+    df = mergeXy2set(X_newly_sca, y)
+    return df
+
 
 if __name__ == '__main__':
     df = pd.read_csv("datasets/sonar/sonar.csv", header=None)
     print(df.head(10))
-    df = ori_pca(df)
-    print(df)
+    df = get_newly_feature(df)
     print(df.shape)
