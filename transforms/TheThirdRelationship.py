@@ -1,12 +1,12 @@
 # 处理第三类关系
-import os
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import Ridge
 from sklearn.kernel_ridge import KernelRidge
-from TheSecondRelationship import calDiscorr, single_pca
+from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler
-from Data import splitData2xy, mergeXy2set
+
+from data.Data import splitData2xy, mergeXy2set
+from transforms.TheSecondRelationship import calDiscorr
 
 
 def dependent_x_y(x, y, th1):
@@ -104,6 +104,26 @@ def get_newly_feature_x_y(dataset):
     return df
 
 
+def ori_newly_feature_x_y(dataset):
+    '''
+    根据特征与标签的相关性生成特征
+    :param dataset: 原始数据集
+    :return: 新的数据集
+    '''
+    X, y = splitData2xy(dataset)
+    related, nonrelated = dependent_x_y(X, y, 0.2)
+    X_related = linear_x_y(X, y, related)
+    X_nonrelated = nonlinear_x_y(X, y, nonrelated)
+    r3 = np.hstack([X_related, X_nonrelated])
+
+    r3 = np.hstack([X, r3])
+
+    scaler = StandardScaler().fit(r3)  # Normalization  & fit only on training
+    X_newly = scaler.transform(r3)  # Normalized Train
+    df = mergeXy2set(X_newly, y)
+    return df
+
+
 # def oripca_new_3nd(train, trainY, test, fold, save_to):
 #     p2, p1 = get_newly_feature_x_y(train, trainY, test, fold, save_to)
 #     X_train_pca, X_test_pca = pca_only(train, test, fold, save_to)
@@ -113,7 +133,7 @@ def get_newly_feature_x_y(dataset):
 
 
 if __name__ == '__main__':
-    df = pd.read_csv("datasets/sonar/sonar.csv", header=None)
+    df = pd.read_csv("../datasets/sonar/sonar.csv", header=None)
     print(df.head(10))
     df = get_newly_feature_x_y(df)
     print(df.shape)

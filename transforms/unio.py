@@ -1,8 +1,9 @@
 # 联合特征
-from TheFirstRelationship import single_sin, ori_arccos
-from TheSecondRelationship import single_pca, oripca_ori_new
 import numpy as np
-from Data import splitData2xy, mergeXy2set
+from transforms.TheFirstRelationship import single_sin, ori_arccos
+
+from data.Data import splitData2xy, mergeXy2set
+from transforms.TheSecondRelationship import oripca_ori_new
 
 
 def _8_Plus_21(X_train, X_test, fold, save_to):

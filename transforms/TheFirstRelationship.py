@@ -1,7 +1,8 @@
 # 处理第一类关系
 import numpy as np
 import pandas as pd
-from Data import splitData2xy, mergeXy2set
+
+from data.Data import splitData2xy, mergeXy2set
 
 np.random.seed(7)
 

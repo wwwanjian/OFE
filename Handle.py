@@ -1,93 +1,22 @@
 # 核心处理文件
-import pandas as pd
-from Data import shuffle, splitDataToCouples
 import numpy as np
-from Selection import selectByIG, stable
-from sklearn.svm import SVC
+import pandas as pd
 from sklearn import svm
 from sklearn import tree
 from sklearn.ensemble import AdaBoostClassifier
-from sklearn.neural_network import MLPClassifier
-from TheSecondRelationship import newly_feature, ori_newly, \
-    ori_pca, pca_ori_ig, oripca_new, oripca_ori_new, double_oripca_ori_new, oripca_ori_ig_pca_ori_new
-from TheFirstRelationship import single_sin, single_cos, single_tan, single_arcsin, single_arccos, single_arctan, \
-    single_square, single_discretization, single_normalizetion, \
-    ori_sin, ori_cos, ori_tan, ori_arccos, ori_arcsin, ori_arctan, ori_normalizetion, ori_square
-from TheThirdRelationship import get_newly_feature_x_y
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from unio import A_plus_B
-from models import single_train, cross_val_train
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from Selection import stable
+from data.Data import shuffle, splitDataToCouples
+from models.models import single_train
+from transforms.TheSecondRelationship import newly_feature, ori_pca, oripca_ori_new
+from transforms.unio import A_plus_B
 
 np.random.seed(7)
-
-
-def get_select_newly(train, test, trainY, dataset_path):
-    '''
-    从新生成的特征中选择
-    :param train: 训练
-    :param test: 测试
-    :param trainY: 训练标签
-    :return:
-    '''
-    stable(train, test, trainY, dataset_path)
-    f1 = pd.read_csv(f'{dataset_path}ensemble_trainfeatures.csv', header=None)
-    f2 = pd.read_csv(f'{dataset_path}ensemble_testfeatures.csv', header=None)
-
-    scaler = StandardScaler().fit(f1)
-    e_f1 = scaler.transform(f1)
-    e_f2 = scaler.transform(f2)
-    return e_f1, e_f2, f1, f2
-
-
-def get_ensemble_feature(ori_train, new_train, ori_test, new_test):
-    '''
-    把原始特征和新特征组合
-    :param ori_train: 训练集原始特征
-    :param new_train: 训练集生成特征
-    :param ori_test: 测试集原始特征
-    :param new_test: 测试集生成特征
-    :return:
-    '''
-    x1X = np.hstack(
-        [ori_test, new_test])  # original test features, selected by IG, f2 is feature space after ensemble selection.
-    x2X = np.hstack([ori_train, new_train])
-
-    scaler = StandardScaler().fit(x2X)  # Again normalization of the complete combined feature pool
-    x2 = scaler.transform(x2X)  # note - when features need to be merged with R2R, we need to do normalization.
-    x1 = scaler.transform(x1X)
-
-    y1Y = np.hstack([ori_test, new_test])
-    y2Y = np.hstack([ori_train, new_train])
-
-    scaler = StandardScaler().fit(y2Y)  # Again normalization of the complete combined feature pool
-    y2 = scaler.transform(y2Y)  # note - when features need to be merged with R2R, we need to do normalization.
-    y1 = scaler.transform(y1Y)
-
-    return x2, x1, y2, y1
-
-
-def get_stable_feature(ori_ig_train, ori_ig_test, dataset_path):
-    '''
-    把筛选后的原始特征和筛选后的生成特征组合
-    :param ori_ig_train: 筛选后的原始训练集
-    :param ori_ig_test: 筛选后的原始测试集
-    :return:
-    '''
-    st_f1 = pd.read_csv(f'{dataset_path}stable_trainfeatures.csv', header=None)
-    st_f2 = pd.read_csv(f'{dataset_path}stable_testfeatures.csv', header=None)
-
-    st_x1X = np.hstack([ori_ig_test,
-                        st_f2])  # original test features, selected by IG, f2 is feature space after stability selection.
-    st_x2X = np.hstack([ori_ig_train, st_f1])
-
-    scaler = StandardScaler().fit(st_x2X)  # Again normalization of the complete combined feature pool
-    st_x2 = scaler.transform(st_x2X)  # note - when features need to be merged with R2R, we need to do normalization.
-    st_x1 = scaler.transform(st_x1X)
-    return st_x2, st_x1
-
 
 def train_for_one(models, names, train, trainY, test, testY, score):
     for i in range(0, len(models)):

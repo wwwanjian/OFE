@@ -1,20 +1,14 @@
 # 处理第二类关系
 import numpy as np
+import pandas as pd
 from scipy.spatial.distance import pdist, squareform
 from scipy.stats.stats import pearsonr
-import os
-from Selection import selectByIG
 from sklearn.decomposition import PCA
-import pandas as pd
-from sklearn.linear_model import Ridge
-from sklearn.kernel_ridge import KernelRidge
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 from sklearn.preprocessing import StandardScaler
-from Data import splitData2xy, mergeXy2set
-from sklearn.linear_model import LinearRegression
-from sklearn.svm import SVR
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor, BaggingRegressor
+
+from Selection import selectByIG
+from data.Data import splitData2xy, mergeXy2set
 
 np.random.seed(7)
 

@@ -1,7 +1,7 @@
-from sklearn import svm
-from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score
-from Data import splitData2xy
+from sklearn.model_selection import train_test_split, cross_val_score
+
+from data.Data import splitData2xy
 
 
 def spliteData(dataset):
