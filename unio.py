@@ -1,7 +1,8 @@
 # 联合特征
 from TheFirstRelationship import single_sin, ori_arccos
-from TheSecondRelationship import pca_only, oripca_ori_new
+from TheSecondRelationship import single_pca, oripca_ori_new
 import numpy as np
+from Data import splitData2xy, mergeXy2set
 
 
 def _8_Plus_21(X_train, X_test, fold, save_to):
@@ -18,3 +19,11 @@ def _12_plus_30(X_train, X_test, fold, save_to, p2, p1):
     train = np.hstack([X_train_pca, X_train_sin])
     test = np.hstack([X_test_pca, X_test_sin])
     return train, test
+
+
+def A_plus_B(dataA, dataB):
+    x1, y1 = splitData2xy(dataA)
+    x2, y2 = splitData2xy(dataB)
+    X = np.hstack([x1, x2])
+    df = mergeXy2set(X, y1)
+    return df

@@ -73,10 +73,19 @@ def splitData2xy(data):
     :param data: 原始数据集
     :return: X:特征集 y:标签
     '''
-    x = data.drop(data.columns[len(data.columns) - 1], 1)
-    Y = data[data.columns[len(data.columns) - 1]]
-    X = x.values
-    y = Y.values
+    try:
+        x = data.drop(data.columns[len(data.columns) - 1], 1)
+        Y = data[data.columns[len(data.columns) - 1]]
+        X = x.values
+        y = Y.values
+    except Exception as e:
+        # print(e)
+        data = pd.DataFrame(data)
+        x = data.drop(data.columns[len(data.columns) - 1], 1)
+        Y = data[data.columns[len(data.columns) - 1]]
+        X = x.values
+        y = Y.values
+
     return X, y
 
 

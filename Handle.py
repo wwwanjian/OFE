@@ -8,59 +8,20 @@ from sklearn import svm
 from sklearn import tree
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.neural_network import MLPClassifier
-from TheSecondRelationship import dependent, linear, nonlinear, pca_operator, \
-    pca_only, pca_ori_ig, oripca_new, oripca_ori_new, double_oripca_ori_new, oripca_ori_ig_pca_ori_new
+from TheSecondRelationship import newly_feature, ori_newly, \
+    ori_pca, pca_ori_ig, oripca_new, oripca_ori_new, double_oripca_ori_new, oripca_ori_ig_pca_ori_new
 from TheFirstRelationship import single_sin, single_cos, single_tan, single_arcsin, single_arccos, single_arctan, \
     single_square, single_discretization, single_normalizetion, \
     ori_sin, ori_cos, ori_tan, ori_arccos, ori_arcsin, ori_arctan, ori_normalizetion, ori_square
-from TheThirdRelationship import get_newly_feature_x_y, oripca_new_3nd
-from unio import _8_Plus_21, _12_plus_30
+from TheThirdRelationship import get_newly_feature_x_y
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from unio import A_plus_B
+from models import single_train, cross_val_train
 
 np.random.seed(7)
-
-
-def get_ori_ig(train, test, trainY, dataset_path):
-    '''
-    获得筛选后特征
-    :param train:训练数据集
-    :param test: 测试数据集
-    :param trainY: 训练数据集标签
-    :return:
-    '''
-    original_ig_train1, original_ig_test1 = selectByIG(train, test, trainY,
-                                                       dataset_path)  # No normalization needed for original training & testing
-    # original_ig_train1 = pd.read_csv(f'{dataset_path}original_ig_trainfeatures.csv', header=None)
-    # original_ig_test1 = pd.read_csv(f'{dataset_path}original_ig_testfeatures.csv', header=None)
-    return original_ig_train1, original_ig_test1
-
-
-def get_newly_feature(train, test, fold, dataset_path):
-    '''
-    获得线性和非线性生成特征
-    :param train: 训练
-    :param test: 测试
-    :return:
-    '''
-    dependent(train, 0.7, fold, dataset_path)
-    a2, a1 = linear(train, test, fold, dataset_path)
-    a4, a3 = nonlinear(train, test, fold, dataset_path)
-
-    # a1 = pd.read_csv(f'{dataset_path}related_lineartest_{fold}.csv', header=None)  # all predicted feature files
-    # a2 = pd.read_csv(f'{dataset_path}related_lineartrain_{fold}.csv', header=None)
-    # a3 = pd.read_csv(f'{dataset_path}related_nonlineartest_{fold}.csv', header=None)
-    # a4 = pd.read_csv(f'{dataset_path}related_nonlineartrain_{fold}.csv', header=None)
-
-    r4 = np.hstack([a2, a4])  # Train
-    r3 = np.hstack([a1, a3])  # Test
-
-    scaler = StandardScaler().fit(r4)  # Normalization  & fit only on training
-    p2 = scaler.transform(r4)  # Normalized Train
-    p1 = scaler.transform(r3)  # Normalized Test
-    return p2, p1
 
 
 def get_select_newly(train, test, trainY, dataset_path):
@@ -148,10 +109,7 @@ def train_and_prediction(models, train, trainY, test, testY, names, original, or
     train_for_one(models, names, st_x2, trainY, st_x1, testY, stable_ig)
 
 
-dataset_path = 'datasets/Wine/Wine.csv'
-save_to = 'datasets/Wine/'
-
-if __name__ == '__main__':
+def main():
     df = pd.read_csv(dataset_path, header=None)
     df = shuffle(df)
     data = df.sample(frac=1)
@@ -323,3 +281,20 @@ if __name__ == '__main__':
 
     print("DONE !!!")
     print(dataset_path)
+
+
+dataset_path = 'datasets/Ionosphere/ionosphere.csv'
+save_to = 'datasets/sonar/'
+
+if __name__ == '__main__':
+    models = [KNeighborsClassifier(), LogisticRegression(), svm.LinearSVC(), SVC(kernel='rbf', gamma="auto"),
+              RandomForestClassifier(), AdaBoostClassifier(), MLPClassifier(), tree.DecisionTreeClassifier()]
+    df = pd.read_csv(dataset_path, header=None)
+    df = shuffle(df)
+    data = df.sample(frac=1)
+    dataset1 = ori_pca(df)
+    dataset2 = newly_feature(df)
+    dataset3 = A_plus_B(dataset1, dataset2)
+    for clf in models:
+        acc = single_train(clf, dataset2)
+        print(acc*100)
