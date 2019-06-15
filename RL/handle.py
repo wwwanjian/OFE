@@ -1,15 +1,11 @@
-from env import Maze
 from rl_brain import QLearningTable
-
 
 def update():
     for episode in range(100):
         # initial observation
-        observation = env.reset()
+        observation = ''
 
         while True:
-            # fresh env
-            env.render()
 
             # RL choose action based on observation
             action = RL.choose_action(str(observation))
@@ -29,12 +25,16 @@ def update():
 
     # end of game
     print('game over')
-    env.destroy()
+
+
+def RL_update(q_table, dataset):
+    for episode in range(100):
+        process = [0]
+        state = str(process)
+        for i in range(10):
+            pass
+
 
 
 if __name__ == "__main__":
-    env = Maze()
-    RL = QLearningTable(actions=list(range(env.n_actions)))
-
-    env.after(100, update)
-    env.mainloop()
+    q_table = QLearningTable(actions=list(range(n_actions)))

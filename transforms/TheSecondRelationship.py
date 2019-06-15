@@ -145,10 +145,13 @@ def ori_pca(dataset):
     ipca = PCA(n_components=min(60, cols))
     ipca.fit(X)
     X_new = ipca.transform(X)
+    try:
+        scaler = StandardScaler().fit(X_new)
+        X_sca = scaler.transform(X)
+        X_new = np.hstack([X_new, X_sca])
+    except Exception as e:
+        print(e)
 
-    scaler = StandardScaler().fit(X_new)
-    X_sca = scaler.transform(X)
-    X_new = np.hstack([X_new, X_sca])
     df = mergeXy2set(X_new, y)
     return df
 

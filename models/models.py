@@ -6,7 +6,7 @@ from data.Data import splitData2xy
 
 def spliteData(dataset):
     X, y = splitData2xy(dataset)
-    train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2, random_state=0)
+    train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.3, random_state=0)
     return train_x, test_x, train_y, test_y
 
 

@@ -4,23 +4,26 @@ from sklearn.feature_selection import mutual_info_classif
 from sklearn.linear_model import RandomizedLasso
 import numpy as np
 import os
+from data.Data import splitData2xy, mergeXy2set
 
 np.random.seed(7)
 
 
 # 特征筛选  通过IG 得到筛选特征列表
-def selectByIG(ress, test, labels, dataset_path):
+def selectByIG(dataset):
     '''
     :param ress:训练数据集
     :param test:测试数据集
     :param labels: 训练数据集标签
     :return:
     '''
-    x, y = ress.shape
-    names = np.arange(y)
+    X, y = splitData2xy(dataset)
+    # x, y = ress.shape
+    rows, cols = X.shape
+    names = np.arange(cols)
 
     ress_new = SelectKBest(mutual_info_classif, k='all')  # 计算IG
-    ress_new.fit_transform(ress, labels)
+    ress_new.fit_transform(X, y)
 
     # print "Features sorted by their scores according to the scoring function - mutual information gain:"
     original_features = sorted(zip(map(lambda x: round(x, 4), ress_new.scores_),
@@ -34,19 +37,12 @@ def selectByIG(ress, test, labels, dataset_path):
 
     print("Selected features after O + IG:")
     print(len(finale))
-    dataset1 = ress[:, finale]
-    dataset3 = test[:, finale]
+    # dataset1 = ress[:, finale]
+    # dataset3 = test[:, finale]
+    X_final = X[:, finale]
+    df = mergeXy2set(X_final, y)
 
-    # if os.path.exists(f"{dataset_path}original_ig_testfeatures.csv"):  # Name of Ouput file generated
-    #     os.remove(f"{dataset_path}original_ig_testfeatures.csv")
-    # if os.path.exists(f"{dataset_path}original_ig_trainfeatures.csv"):  # Name of Ouput file generated
-    #     os.remove(f"{dataset_path}original_ig_trainfeatures.csv")
-    #
-    # with open(f"{dataset_path}original_ig_testfeatures.csv", "wb") as myfile:
-    #     np.savetxt(myfile, dataset3, delimiter=",", fmt="%s")
-    # with open(f"{dataset_path}original_ig_trainfeatures.csv", "wb") as myfile:
-    #     np.savetxt(myfile, dataset1, delimiter=",", fmt="%s")
-    return dataset1, dataset3
+    return df
 
 
 # 从新生成的特征进行选择
