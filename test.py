@@ -18,5 +18,10 @@ if __name__ == '__main__':
     # data = pd.concat([test, train])
     # data.to_csv("datasets/Shuttle/shuttle.csv", index=False, header=None)
 
-    df = pd.read_csv("datasets/FeaturePixel/mfeat-fou.csv", header=None)
-    print(df.shape)
+    df = pd.read_csv("datasets/sonar/sonar.csv", header=None)
+    # print(df.shape)
+    a = 2
+    b = 3
+    for i in range(10):
+        b = b + i
+        print(i)

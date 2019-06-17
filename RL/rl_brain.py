@@ -30,7 +30,10 @@ class QLearningTable:
 
     def learn(self, s, a, r, s_):
         self.check_state_exist(s_)
-        q_predict = self.q_table.loc[s, str(a)]
+        try:
+            q_predict = self.q_table.loc[s, str(a)]
+        except Exception as e:
+            print(e)
         q_target = r + self.gamma * self.q_table.loc[s_, :].max()  # next state is not terminal
         self.q_table.loc[s, str(a)] += self.lr * (q_target - q_predict)  # update
         # print(self.q_table)
