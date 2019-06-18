@@ -70,6 +70,7 @@ def RL_update(q_table, dataset):
             # update state
             state = state_
             print(q_table.q_table)
+            print("episode:", episode)
     print("done!")
     q_table.q_table.to_csv("qtable.csv")
     print("max_acc:", max_acc)
@@ -82,10 +83,10 @@ actions = [single_sin, single_cos, single_tan, ori_sin, ori_cos, ori_tan, single
 
 dataset_path = 'datasets/sonar/sonar.csv'
 save_to = 'datasets/ecoli/'
-MAX_EPISODE = 10000  # 训练次数
+MAX_EPISODE = 10  # 训练次数
 MAX_DEPTH = 3  # 深度
 max_acc = 0
-max_state = []
+max_state = []  # 12 13 13
 
 if __name__ == '__main__':
     # models = [KNeighborsClassifier(), LogisticRegression(), svm.LinearSVC(), SVC(kernel='rbf', gamma="auto"),
@@ -103,5 +104,12 @@ if __name__ == '__main__':
     q_table = QLearningTable(actions=list(range(len(actions))))
     RL_update(q_table, df)
 
-    # df = pd.read_csv("qtable.csv",index_col=0)
-    # print(df)
+    # df = get_newly_feature_x_y(df)
+    # df = selectByIG(df)
+    # df = ori_newly_feature_x_y(df)
+    # df = selectByIG(df)
+    # df = ori_newly_feature_x_y(df)
+    # df = selectByIG(df)
+    # clf = SVC(kernel='rbf', gamma="auto")
+    # acc = single_train(clf, df)
+    # print(acc)
