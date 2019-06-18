@@ -26,6 +26,15 @@ np.random.seed(7)
 
 
 def execu_action(action, dataset, clf, state, actions):
+    '''
+    执行一次动作计算奖励
+    :param action:
+    :param dataset:
+    :param clf:
+    :param state:
+    :param actions:
+    :return:
+    '''
     # state_ = state
     state_ = copy.deepcopy(state)
     state_.append(action)
@@ -48,15 +57,28 @@ def execu_action(action, dataset, clf, state, actions):
     return state_, reward, df
 
 
-def RL_update(q_table, dataset):
+def RL_update(q_table, dataset, train=True, clf="PSVM"):
+    '''
+    Q-learning的训练过程
+    :param q_table:
+    :param dataset:
+    :return:
+    '''
     models = [KNeighborsClassifier(), LogisticRegression(), svm.LinearSVC(), SVC(kernel='rbf', gamma="auto"),
               RandomForestClassifier(), AdaBoostClassifier(), MLPClassifier(), tree.DecisionTreeClassifier()]
     model_names = ['kNN', 'LR', 'LSVM', 'PSVM', 'RF', 'AB', 'NN', 'DT']
-    n_actions = len(actions)
-    clf = models[3]
+    if not train:
+        model_name = clf
+        clf_i = model_names.index(clf)
+        clf = models[clf_i]
     for episode in range(MAX_EPISODE):
+        if train:
+            n_clfs = len(models)
+            model_num = random.randint(0, n_clfs - 1)
+            model_name = model_names[model_num]
+            clf = models[model_num]
         df = dataset
-        process_flow = []
+        process_flow = [model_name]
         state = process_flow
         for i in range(MAX_DEPTH):
             # choose acton
@@ -83,27 +105,19 @@ actions = [single_sin, single_cos, single_tan, ori_sin, ori_cos, ori_tan, single
 
 dataset_path = 'datasets/sonar/sonar.csv'
 save_to = 'datasets/ecoli/'
-MAX_EPISODE = 10  # 训练次数
-MAX_DEPTH = 3  # 深度
+MAX_EPISODE = 100  # 训练次数
+MAX_DEPTH = 5  # 深度
 max_acc = 0
 max_state = []  # 12 13 13
 
 if __name__ == '__main__':
-    # models = [KNeighborsClassifier(), LogisticRegression(), svm.LinearSVC(), SVC(kernel='rbf', gamma="auto"),
-    #           RandomForestClassifier(), AdaBoostClassifier(), MLPClassifier(), tree.DecisionTreeClassifier()]
+    # RL train process
     df = pd.read_csv(dataset_path, header=None)
     df = shuffle(df)
-    # # data = df.sample(frac=1)
-    # dataset1 = single_arccos(df)
-    # dataset2 = newly_feature(df)
-    # dataset3 = A_plus_B(dataset1, dataset2)
-    # for clf in models:
-    #     acc = single_train(clf, dataset1)
-    #     print(acc * 100)
-
     q_table = QLearningTable(actions=list(range(len(actions))))
-    RL_update(q_table, df)
+    RL_update(q_table, df, True, "PSVM")
 
+    # test train process
     # df = get_newly_feature_x_y(df)
     # df = selectByIG(df)
     # df = ori_newly_feature_x_y(df)

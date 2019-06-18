@@ -151,14 +151,17 @@ def merge_all_df(df_levels):
     :return:
     '''
     levels = len(df_levels)  # 层数
+    merged_table = []
     for level in range(levels - 1):  # 从最后一层开始遍历
         dfs_high = df_levels[str(levels - 2 - level)]
         dfs_low = df_levels[str(levels - 1 - level)]
         for df_high in dfs_high:
             for df_low in dfs_low:
                 col = get_same_col(df_high[1], df_low[1])
-                if len(col):
-                    print(col)
+                if len(col) and (df_low[0] not in merged_table):
+                    # print(col)
+                    merged_table.append(df_low[0])
+                    add_table_by_cols(df_high[1], df_low[1], col)
 
 
 def add_table_by_cols(df1, df2, cols):
@@ -173,7 +176,8 @@ def add_table_by_cols(df1, df2, cols):
         return
     col = cols[0]
     same_col_value = df1[col]  # df1中col列的数值
-
+    relationship = get_relationship(df1, df2, cols)
+    # print(relationship)
     df2_colmuns = list(df2.columns)
     for i in cols:
         df2_colmuns.remove(i)  # 获得df2中不同于df1的列
@@ -183,16 +187,16 @@ def add_table_by_cols(df1, df2, cols):
         df_merged = df2[df2[col] == j]  # 找到df2中col值为j的行
         for i in df2_colmuns:  # 给df1中相应位置赋值
             df1.loc[df1[col] == j, i] = df_merged[i].sum()
-    print(df1)
+            # print(df1)
 
 
 data_path = "dataset"
 if __name__ == '__main__':
     datas = get_all_path(data_path)
     df_arr = get_all_df(datas)
-    # df_levels = {}
-    # build_levels_pro(df_arr, df_levels, 0)
-    # merge_all_df(df_levels)
+    df_levels = {}
+    build_levels_pro(df_arr, df_levels, 0)
+    merge_all_df(df_levels)
 
     # print(df_levels)
     # same_cols = get_same_col(df_arr[1], df_arr[3])
@@ -200,4 +204,5 @@ if __name__ == '__main__':
     # relationship = get_relationship(df_arr[1], df_arr[3], same_cols)
     # print(relationship)
 
-    add_table_by_cols(df_arr[3], df_arr[2], ["ProductID"])
+    # add_table_by_cols(df_arr[1], df_arr[3], ["OrderID"])
+    print("ok")
