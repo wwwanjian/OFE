@@ -64,9 +64,9 @@ def RL_update(q_table, dataset, train=True, clf="PSVM"):
     :param dataset:
     :return:
     '''
-    models = [KNeighborsClassifier(), LogisticRegression(), svm.LinearSVC(), SVC(kernel='rbf', gamma="auto"),
+    models = [KNeighborsClassifier(), svm.LinearSVC(), SVC(kernel='rbf', gamma="auto"),
               RandomForestClassifier(), AdaBoostClassifier(), MLPClassifier(), tree.DecisionTreeClassifier()]
-    model_names = ['kNN', 'LR', 'LSVM', 'PSVM', 'RF', 'AB', 'NN', 'DT']
+    model_names = ['kNN', 'LSVM', 'PSVM', 'RF', 'AB', 'NN', 'DT']
     if not train:
         model_name = clf
         clf_i = model_names.index(clf)
@@ -93,8 +93,9 @@ def RL_update(q_table, dataset, train=True, clf="PSVM"):
             state = state_
             print(q_table.q_table)
             print("episode:", episode)
+        q_table.q_table.to_csv("qtable.csv")
     print("done!")
-    q_table.q_table.to_csv("qtable.csv")
+    # q_table.q_table.to_csv("qtable.csv")
     print("max_acc:", max_acc)
     print("max_state:", max_state)
 
